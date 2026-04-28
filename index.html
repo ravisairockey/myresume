@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ravi Sai Vigneswara — Cosmic Resume</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['DM Sans', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  :root {
+    --glass-bg: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.12);
+    --glass-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --accent: #00ffc8;
+    --accent2: #ff6b35;
+    --accent3: #ffd700;
+    --text-primary: #e0f7f0;
+    --text-secondary: #8aaa9e;
+    --bg-deep: #050a0e;
+  }
+  .light {
+    --glass-bg: rgba(255,255,255,0.45);
+    --glass-border: rgba(255,255,255,0.5);
+    --glass-shadow: 0 8px 32px rgba(0,80,60,0.12);
+    --accent: #00b890;
+    --accent2: #e05520;
+    --accent3: #c9a800;
+    --text-primary: #0a1a15;
+    --text-secondary: #4a6a5e;
+    --bg-deep: #eef5f2;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-deep);
+    overflow-x: hidden;
+    transition: background 0.7s, color 0.7s;
+  }
+  #three-canvas {
+    position: fixed; top:0; left:0; width:100%; height:100%; z-index:0;
+    pointer-events: none;
+  }
+  .cursor-glow {
+    position: fixed; width:400px; height:400px; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,255,200,0.1) 0%, transparent 70%);
+    pointer-events: none; transform: translate(-50%,-50%); z-index:1;
+    transition: opacity 0.3s;
+  }
+  .light .cursor-glow {
+    background: radial-gradient(circle, rgba(0,184,144,0.08) 0%, transparent 70%);
+  }
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--glass-shadow);
+    transition: background 0.5s, border-color 0.5s, box-shadow 0.5s, transform 0.3s;
+  }
+  .glass:hover { border-color: rgba(0,255,200,0.25); }
+  .light .glass:hover { border-color: rgba(0,184,144,0.3); }
+  .magnetic-card { transition: transform 0.15s ease-out; }
+  .content-wrapper { position: relative; z-index:2; }
+  section { min-height: 100vh; padding: 6rem 1.5rem; }
+  @media(min-width:768px){ section { padding: 6rem 3rem; } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius:3px; }
+
+  /* Typing cursor */
+  .typed-cursor {
+    display:inline-block; width:3px; height:1.1em; background:var(--accent);
+    margin-left:4px; vertical-align:text-bottom;
+    animation: blink 0.8s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Skill bar */
+  .skill-fill {
+    height:100%; border-radius:9999px; width:0;
+    transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity:0; transform:translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* Hero float */
+  @keyframes heroFloat {
+    0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-14px) }
+  }
+  .hero-float { animation: heroFloat 4s ease-in-out infinite; }
+
+  /* Scroll indicator */
+  @keyframes scrollBounce {
+    0%,100%{ transform:translateY(0); opacity:0.6 }
+    50%{ transform:translateY(10px); opacity:1 }
+  }
+  .scroll-indicator { animation: scrollBounce 2s ease-in-out infinite; }
+
+  /* Nav glass */
+  nav.glass-nav {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--glass-border);
+    transition: background 0.5s, border-color 0.5s;
+  }
+
+  /* Tag pill */
+  .tag {
+    display:inline-block; padding:0.2rem 0.65rem; border-radius:9999px;
+    font-size:0.75rem; font-weight:500;
+    background: rgba(0,255,200,0.1); color:var(--accent);
+    border:1px solid rgba(0,255,200,0.2);
+    transition: background 0.3s, transform 0.2s;
+  }
+  .tag:hover { background:rgba(0,255,200,0.2); transform:scale(1.05); }
+  .light .tag { background:rgba(0,184,144,0.1); color:var(--accent); border-color:rgba(0,184,144,0.2); }
+
+  /* Loading screen */
+  #loader {
+    position:fixed; inset:0; z-index:9999; background:#050a0e;
+    display:flex; align-items:center; justify-content:center;
+    transition: opacity 0.8s;
+  }
+  #loader.hidden { opacity:0; pointer-events:none; }
+  .loader-ring {
+    width:60px; height:60px; border:3px solid transparent;
+    border-top-color: var(--accent); border-radius:50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg) } }
+
+  /* Progress ring */
+  .progress-ring-circle {
+    transition: stroke-dashoffset 0.15s;
+    transform: rotate(-90deg); transform-origin: 50% 50%;
+  }
+
+  /* Glow text */
+  .glow-accent { text-shadow: 0 0 30px rgba(0,255,200,0.3); }
+  .light .glow-accent { text-shadow: none; }
+
+  /* Button */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #00cc9e);
+    color: #050a0e; font-weight:600; border:none; padding:0.75rem 1.75rem;
+    border-radius:0.75rem; cursor:pointer; font-family:'Space Grotesk',sans-serif;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 4px 20px rgba(0,255,200,0.25);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 30px rgba(0,255,200,0.4); }
+  .btn-outline {
+    background:transparent; color:var(--accent); font-weight:600;
+    border:2px solid var(--accent); padding:0.7rem 1.75rem;
+    border-radius:0.75rem; cursor:pointer; font-family:'Space Grotesk',sans-serif;
+    transition: transform 0.2s, background 0.3s, color 0.3s;
+  }
+  .btn-outline:hover { background:var(--accent); color:#050a0e; transform:translateY(-2px); }
+
+  @media(prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader"><div class="loader-ring"></div></div>
+
+<!-- Cursor glow -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- Three.js canvas -->
+<canvas id="three-canvas"></canvas>
+
+<!-- Navigation -->
+<nav class="glass-nav fixed top-0 left-0 w-full z-50 px-4 md:px-8 py-3 flex items-center justify-between">
+  <a href="#hero" class="font-display font-bold text-lg tracking-tight" style="color:var(--accent);">RSV</a>
+  <div class="hidden md:flex items-center gap-6 text-sm font-display font-medium" style="color:var(--text-secondary);">
+    <a href="#about" class="hover:text-[var(--accent)] transition-colors">About</a>
+    <a href="#skills" class="hover:text-[var(--accent)] transition-colors">Skills</a>
+    <a href="#projects" class="hover:text-[var(--accent)] transition-colors">Projects</a>
+    <a href="#education" class="hover:text-[var(--accent)] transition-colors">Education</a>
+    <a href="#contact" class="hover:text-[var(--accent)] transition-colors">Contact</a>
+  </div>
+  <div class="flex items-center gap-3">
+    <!-- Scroll progress ring -->
+    <svg width="28" height="28" class="hidden md:block">
+      <circle cx="14" cy="14" r="11" fill="none" stroke="var(--glass-border)" stroke-width="2"/>
+      <circle id="progressRing" cx="14" cy="14" r="11" fill="none" stroke="var(--accent)" stroke-width="2"
+        stroke-dasharray="69.115" stroke-dashoffset="69.115" class="progress-ring-circle" stroke-linecap="round"/>
+    </svg>
+    <button id="themeToggle" aria-label="Toggle theme"
+      class="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+      style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);">
+      <i class="fa-solid fa-moon text-sm" id="themeIcon"></i>
+    </button>
+    <!-- Mobile menu -->
+    <button id="mobileMenuBtn" class="md:hidden w-9 h-9 rounded-full flex items-center justify-center"
+      style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);">
+      <i class="fa-solid fa-bars text-sm"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div id="mobileMenu" class="fixed inset-0 z-40 hidden" style="background:var(--bg-deep);opacity:0.97;">
+  <div class="flex flex-col items-center justify-center h-full gap-8 text-2xl font-display font-semibold" style="color:var(--text-primary);">
+    <a href="#about" class="mobile-link hover:text-[var(--accent)] transition-colors">About</a>
+    <a href="#skills" class="mobile-link hover:text-[var(--accent)] transition-colors">Skills</a>
+    <a href="#projects" class="mobile-link hover:text-[var(--accent)] transition-colors">Projects</a>
+    <a href="#education" class="mobile-link hover:text-[var(--accent)] transition-colors">Education</a>
+    <a href="#contact" class="mobile-link hover:text-[var(--accent)] transition-colors">Contact</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content-wrapper">
+
+  <!-- HERO -->
+  <section id="hero" class="flex flex-col items-center justify-center text-center relative">
+    <div class="hero-float">
+      <p class="font-display text-sm md:text-base tracking-[0.3em] uppercase mb-4 reveal" style="color:var(--accent);">
+        Hello, I'm
+      </p>
+      <h1 class="font-display font-bold text-5xl md:text-7xl lg:text-8xl leading-tight mb-4 reveal glow-accent" style="color:var(--text-primary);">
+        Ravi Sai<br>Vigneswara
+      </h1>
+      <div class="font-display text-xl md:text-2xl font-light mb-8 reveal" style="color:var(--text-secondary);">
+        <span id="typed-text"></span><span class="typed-cursor"></span>
+      </div>
+      <div class="flex flex-wrap gap-4 justify-center reveal">
+        <a href="#projects" class="btn-primary">Explore My Work</a>
+        <a href="#contact" class="btn-outline">Get In Touch</a>
+      </div>
+    </div>
+    <div class="absolute bottom-10 scroll-indicator" style="color:var(--text-secondary);">
+      <i class="fa-solid fa-chevron-down text-lg"></i>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-5 gap-8 items-center">
+      <div class="md:col-span-2 flex justify-center reveal">
+        <div class="glass magnetic-card p-2 rounded-2xl">
+          <img src="https://picsum.photos/seed/ravi-portrait/400/400" alt="Ravi Sai Vigneswara"
+            class="rounded-xl w-64 h-64 md:w-72 md:h-72 object-cover">
+        </div>
+      </div>
+      <div class="md:col-span-3 reveal">
+        <h2 class="font-display font-bold text-3xl md:text-4xl mb-6" style="color:var(--text-primary);">
+          About Me
+        </h2>
+        <p class="text-base md:text-lg leading-relaxed mb-6" style="color:var(--text-secondary);">
+          I'm a passionate full-stack developer and creative coder based in India, with a deep love for building
+          immersive digital experiences that blur the line between art and technology. From crafting performant
+          web applications with React and Next.js to experimenting with WebGL shaders and AI-driven tools,
+          I thrive at the intersection of design and engineering.
+        </p>
+        <p class="text-base md:text-lg leading-relaxed mb-8" style="color:var(--text-secondary);">
+          When I'm not coding, you'll find me exploring generative art, contributing to open-source projects,
+          or diving into the latest research in machine learning. I believe the best software tells a story —
+          and I'm here to write mine in code.
+        </p>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="glass p-4 text-center magnetic-card">
+            <div class="font-display font-bold text-2xl md:text-3xl" style="color:var(--accent);">3+</div>
+            <div class="text-xs md:text-sm mt-1" style="color:var(--text-secondary);">Years Exp.</div>
+          </div>
+          <div class="glass p-4 text-center magnetic-card">
+            <div class="font-display font-bold text-2xl md:text-3xl" style="color:var(--accent2);">20+</div>
+            <div class="text-xs md:text-sm mt-1" style="color:var(--text-secondary);">Projects</div>
+          </div>
+          <div class="glass p-4 text-center magnetic-card">
+            <div class="font-display font-bold text-2xl md:text-3xl" style="color:var(--accent3);">5+</div>
+            <div class="text-xs md:text-sm mt-1" style="color:var(--text-secondary);">Technologies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="max-w-6xl mx-auto">
+    <h2 class="font-display font-bold text-3xl md:text-4xl mb-10 text-center reveal" style="color:var(--text-primary);">
+      Skills & Expertise
+    </h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Web Dev -->
+      <div class="glass p-6 reveal magnetic-card">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(0,255,200,0.1);">
+            <i class="fa-solid fa-code" style="color:var(--accent);"></i>
+          </div>
+          <h3 class="font-display font-semibold text-lg" style="color:var(--text-primary);">Web Development</h3>
+        </div>
+        <div class="space-y-4" id="skills-web">
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">React / Next.js</span><span style="color:var(--accent);">92%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="92%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">TypeScript</span><span style="color:var(--accent);">88%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="88%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">Node.js / Express</span><span style="color:var(--accent);">84%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="84%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">Tailwind CSS</span><span style="color:var(--accent);">90%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="90%"></div></div></div>
+        </div>
+      </div>
+      <!-- AI/ML -->
+      <div class="glass p-6 reveal magnetic-card">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(255,107,53,0.1);">
+            <i class="fa-solid fa-brain" style="color:var(--accent2);"></i>
+          </div>
+          <h3 class="font-display font-semibold text-lg" style="color:var(--text-primary);">AI & Machine Learning</h3>
+        </div>
+        <div class="space-y-4">
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">Python / PyTorch</span><span style="color:var(--accent2);">78%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="78%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">TensorFlow</span><span style="color:var(--accent2);">74%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="74%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">NLP / LLMs</span><span style="color:var(--accent2);">72%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="72%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">Computer Vision</span><span style="color:var(--accent2);">68%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="68%"></div></div></div>
+        </div>
+      </div>
+      <!-- Creative -->
+      <div class="glass p-6 reveal magnetic-card">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(255,215,0,0.1);">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent3);"></i>
+          </div>
+          <h3 class="font-display font-semibold text-lg" style="color:var(--text-primary);">Creative Coding</h3>
+        </div>
+        <div class="space-y-4">
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">Three.js / WebGL</span><span style="color:var(--accent3);">80%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="80%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">GLSL Shaders</span><span style="color:var(--accent3);">70%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="70%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">GSAP / Framer Motion</span><span style="color:var(--accent3);">82%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="82%"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span style="color:var(--text-secondary);">Generative Art</span><span style="color:var(--accent3);">75%</span></div><div class="h-2 rounded-full" style="background:var(--glass-border);"><div class="skill-fill" data-width="75%"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="max-w-6xl mx-auto">
+    <h2 class="font-display font-bold text-3xl md:text-4xl mb-10 text-center reveal" style="color:var(--text-primary);">
+      Featured Projects
+    </h2>
+    <div class="grid md:grid-cols-2 gap-6">
+
+      <div class="glass overflow-hidden reveal magnetic-card group">
+        <div class="relative overflow-hidden">
+          <img src="https://picsum.photos/seed/neural-art-gen/600/360" alt="Neural Style Transfer" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(5,10,14,0.8),transparent);"></div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display font-semibold text-xl mb-2" style="color:var(--text-primary);">Neural Style Transfer</h3>
+          <p class="text-sm mb-4" style="color:var(--text-secondary);">AI-powered art generation app using deep neural networks to apply artistic styles to photographs in real-time. Built with PyTorch and a custom FastAPI backend.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="tag">PyTorch</span><span class="tag">FastAPI</span><span class="tag">React</span><span class="tag">WebGL</span>
+          </div>
+          <div class="flex gap-4 text-sm font-medium">
+            <a href="#" style="color:var(--accent);" class="hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Live Demo</a>
+            <a href="#" style="color:var(--text-secondary);" class="hover:underline"><i class="fa-brands fa-github mr-1"></i>Source</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass overflow-hidden reveal magnetic-card group">
+        <div class="relative overflow-hidden">
+          <img src="https://picsum.photos/seed/cosmic-dashboard/600/360" alt="Cosmic Dashboard" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(5,10,14,0.8),transparent);"></div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display font-semibold text-xl mb-2" style="color:var(--text-primary);">Cosmic Dashboard</h3>
+          <p class="text-sm mb-4" style="color:var(--text-secondary);">Real-time space data visualization platform featuring live satellite tracking, asteroid proximity alerts, and interactive 3D solar system exploration built with Three.js.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="tag">Three.js</span><span class="tag">D3.js</span><span class="tag">Next.js</span><span class="tag">WebSocket</span>
+          </div>
+          <div class="flex gap-4 text-sm font-medium">
+            <a href="#" style="color:var(--accent);" class="hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Live Demo</a>
+            <a href="#" style="color:var(--text-secondary);" class="hover:underline"><i class="fa-brands fa-github mr-1"></i>Source</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass overflow-hidden reveal magnetic-card group">
+        <div class="relative overflow-hidden">
+          <img src="https://picsum.photos/seed/vibe-editor/600/360" alt="Vibe Code Editor" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(5,10,14,0.8),transparent);"></div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display font-semibold text-xl mb-2" style="color:var(--text-primary);">Vibe Code Editor</h3>
+          <p class="text-sm mb-4" style="color:var(--text-secondary);">AI-assisted collaborative code editor with real-time pair programming, intelligent autocomplete, and voice-controlled editing. Powered by WebRTC and transformer models.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="tag">TypeScript</span><span class="tag">WebRTC</span><span class="tag">Node.js</span><span class="tag">GPT</span>
+          </div>
+          <div class="flex gap-4 text-sm font-medium">
+            <a href="#" style="color:var(--accent);" class="hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Live Demo</a>
+            <a href="#" style="color:var(--text-secondary);" class="hover:underline"><i class="fa-brands fa-github mr-1"></i>Source</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass overflow-hidden reveal magnetic-card group">
+        <div class="relative overflow-hidden">
+          <img src="https://picsum.photos/seed/particle-symphony/600/360" alt="Particle Symphony" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+          <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(5,10,14,0.8),transparent);"></div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display font-semibold text-xl mb-2" style="color:var(--text-primary);">Particle Symphony</h3>
+          <p class="text-sm mb-4" style="color:var(--text-secondary);">Interactive music visualizer that transforms audio input into mesmerizing GPU-accelerated particle choreography. Uses Web Audio API and custom GLSL compute shaders.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="tag">GLSL</span><span class="tag">Web Audio</span><span class="tag">Canvas</span><span class="tag">WASM</span>
+          </div>
+          <div class="flex gap-4 text-sm font-medium">
+            <a href="#" style="color:var(--accent);" class="hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Live Demo</a>
+            <a href="#" style="color:var(--text-secondary);" class="hover:underline"><i class="fa-brands fa-github mr-1"></i>Source</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education" class="max-w-4xl mx-auto">
+    <h2 class="font-display font-bold text-3xl md:text-4xl mb-10 text-center reveal" style="color:var(--text-primary);">
+      Education & Journey
+    </h2>
+    <div class="relative">
+      <!-- Timeline line -->
+      <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px" style="background:var(--glass-border);transform:translateX(-50%);"></div>
+
+      <div class="space-y-10">
+        <div class="relative flex items-start reveal">
+          <div class="hidden md:block md:w-1/2 md:pr-10 md:text-right">
+            <div class="glass p-5 magnetic-card inline-block">
+              <span class="text-xs font-display font-semibold tracking-wider" style="color:var(--accent);">2021 — Present</span>
+              <h3 class="font-display font-semibold text-lg mt-1" style="color:var(--text-primary);">B.Tech in Computer Science</h3>
+              <p class="text-sm mt-1" style="color:var(--text-secondary);">Specializing in AI & Machine Learning. Dean's List, hackathon winner, and active contributor to the university's open-source club.</p>
+            </div>
+          </div>
+          <div class="absolute left-4 md:left-1/2 w-3 h-3 rounded-full -translate-x-1/2 mt-2" style="background:var(--accent);box-shadow:0 0 12px rgba(0,255,200,0.5);"></div>
+          <div class="md:hidden ml-10">
+            <div class="glass p-5 magnetic-card">
+              <span class="text-xs font-display font-semibold tracking-wider" style="color:var(--accent);">2021 — Present</span>
+              <h3 class="font-display font-semibold text-lg mt-1" style="color:var(--text-primary);">B.Tech in Computer Science</h3>
+              <p class="text-sm mt-1" style="color:var(--text-secondary);">Specializing in AI & Machine Learning. Dean's List and hackathon winner.</p>
+            </div>
+          </div>
+          <div class="hidden md:block md:w-1/2 md:pl-10"></div>
+        </div>
+
+        <div class="relative flex items-start reveal">
+          <div class="hidden md:block md:w-1/2 md:pr-10"></div>
+          <div class="absolute left-4 md:left-1/2 w-3 h-3 rounded-full -translate-x-1/2 mt-2" style="background:var(--accent2);box-shadow:0 0 12px rgba(255,107,53,0.5);"></div>
+          <div class="md:hidden ml-10">
+            <div class="glass p-5 magnetic-card">
+              <span class="text-xs font-display font-semibold tracking-wider" style="color:var(--accent2);">2023</span>
+              <h3 class="font-display font-semibold text-lg mt-1" style="color:var(--text-primary);">Google Summer of Code</h3>
+              <p class="text-sm mt-1" style="color:var(--text-secondary);">Contributed to the Three.js ecosystem, building accessible 3D interaction tooling.</p>
+            </div>
+          </div>
+          <div class="hidden md:block md:w-1/2 md:pl-10 md:text-left">
+            <div class="glass p-5 magnetic-card inline-block">
+              <span class="text-xs font-display font-semibold tracking-wider" style="color:var(--accent2);">2023</span>
+              <h3 class="font-display font-semibold text-lg mt-1" style="color:var(--text-primary);">Google Summer of Code</h3>
+              <p class="text-sm mt-1" style="color:var(--text-secondary);">Contributed to the Three.js ecosystem, building accessible 3D interaction tooling for the web.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative flex items-start reveal">
+          <div class="hidden md:block md:w-1/2 md:pr-10 md:text-right">
+            <div class="glass p-5 magnetic-card inline-block">
+              <span class="text-xs font-display font-semibold tracking-wider" style="color:var(--accent3);">2022</span>
+              <h3 class="font-display font-semibold text-lg mt-1" style="color:var(--text-primary);">Smart India Hackathon Winner</h3>
+              <p class="text-sm mt-1" style="color:var(--text-secondary);">Led a team of 6 to build an AI-driven rural healthcare platform in 36 hours. Awarded by the Ministry of Education.</p>
+            </div>
+          </div>
+          <div class="absolute left-4 md:left-1/2 w-3 h-3 rounded-full -translate-x-1/2 mt-2" style="background:var(--accent3);box-shadow:0 0 12px rgba(255,215,0,0.5);"></div>
+          <div class="md:hidden ml-10">
+            <div class="glass p-5 magnetic-card">
+              <span class="text-xs font-display font-semibold tracking-wider" style="color:var(--accent3);">2022</span>
+              <h3 class="font-display font-semibold text-lg mt-1" style="color:var(--text-primary);">Smart India Hackathon Winner</h3>
+              <p class="text-sm mt-1" style="color:var(--text-secondary);">Built an AI-driven rural healthcare platform in 36 hours.</p>
+            </div>
+          </div>
+          <div class="hidden md:block md:w-1/2 md:pl-10"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="max-w-4xl mx-auto">
+    <h2 class="font-display font-bold text-3xl md:text-4xl mb-4 text-center reveal" style="color:var(--text-primary);">
+      Let's Build Something Cosmic
+    </h2>
+    <p class="text-center mb-10 reveal" style="color:var(--text-secondary);">
+      Have an idea, a project, or just want to say hello? I'd love to hear from you.
+    </p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass p-8 reveal magnetic-card">
+        <form id="contactForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1" style="color:var(--text-secondary);">Name</label>
+            <input type="text" required class="w-full px-4 py-2.5 rounded-lg text-sm font-body outline-none transition-all focus:ring-2 focus:ring-[var(--accent)]" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);" placeholder="Your name">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1" style="color:var(--text-secondary);">Email</label>
+            <input type="email" required class="w-full px-4 py-2.5 rounded-lg text-sm font-body outline-none transition-all focus:ring-2 focus:ring-[var(--accent)]" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);" placeholder="you@email.com">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1" style="color:var(--text-secondary);">Message</label>
+            <textarea rows="4" required class="w-full px-4 py-2.5 rounded-lg text-sm font-body outline-none resize-none transition-all focus:ring-2 focus:ring-[var(--accent)]" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);" placeholder="Tell me about your idea..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary w-full">Send Message</button>
+        </form>
+        <div id="formSuccess" class="hidden text-center py-8">
+          <i class="fa-solid fa-circle-check text-4xl mb-3" style="color:var(--accent);"></i>
+          <p class="font-display font-semibold text-lg" style="color:var(--text-primary);">Message Sent</p>
+          <p class="text-sm" style="color:var(--text-secondary);">Thanks for reaching out. I'll get back to you soon.</p>
+        </div>
+      </div>
+      <div class="flex flex-col gap-4 reveal">
+        <a href="mailto:ravisai@example.com" class="glass p-5 flex items-center gap-4 magnetic-card group">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(0,255,200,0.1);">
+            <i class="fa-solid fa-envelope text-lg" style="color:var(--accent);"></i>
+          </div>
+          <div>
+            <div class="font-display font-semibold text-sm" style="color:var(--text-primary);">Email</div>
+            <div class="text-sm" style="color:var(--text-secondary);">ravisai@example.com</div>
+          </div>
+        </a>
+        <a href="#" class="glass p-5 flex items-center gap-4 magnetic-card group">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(255,255,255,0.05);">
+            <i class="fa-brands fa-github text-lg" style="color:var(--text-primary);"></i>
+          </div>
+          <div>
+            <div class="font-display font-semibold text-sm" style="color:var(--text-primary);">GitHub</div>
+            <div class="text-sm" style="color:var(--text-secondary);">github.com/ravisai</div>
+          </div>
+        </a>
+        <a href="#" class="glass p-5 flex items-center gap-4 magnetic-card group">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(0,119,181,0.1);">
+            <i class="fa-brands fa-linkedin-in text-lg" style="color:#0077b5;"></i>
+          </div>
+          <div>
+            <div class="font-display font-semibold text-sm" style="color:var(--text-primary);">LinkedIn</div>
+            <div class="text-sm" style="color:var(--text-secondary);">linkedin.com/in/ravisai</div>
+          </div>
+        </a>
+        <a href="#" class="glass p-5 flex items-center gap-4 magnetic-card group">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(255,107,53,0.1);">
+            <i class="fa-brands fa-x-twitter text-lg" style="color:var(--accent2);"></i>
+          </div>
+          <div>
+            <div class="font-display font-semibold text-sm" style="color:var(--text-primary);">X / Twitter</div>
+            <div class="text-sm" style="color:var(--text-secondary);">@ravi_sai_dev</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-8 text-center text-sm" style="color:var(--text-secondary);border-top:1px solid var(--glass-border);">
+    <p>Designed & built by <span style="color:var(--accent);">Ravi Sai Vigneswara</span> &mdash; 2024</p>
+    <p class="mt-1 text-xs opacity-60">Crafted with Three.js, GLSL shaders, and a love for the cosmos</p>
+  </footer>
+</div>
+
+<!-- Toast container -->
+<div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+  <div class="glass px-5 py-3 flex items-center gap-3">
+    <i class="fa-solid fa-check-circle" style="color:var(--accent);"></i>
+    <span class="text-sm" id="toastMsg" style="color:var(--text-primary);"></span>
+  </div>
+</div>
+
+<!-- THREE.JS SCENE -->
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const canvas = document.getElementById('three-canvas');
+const isMobile = window.innerWidth < 768;
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+// Scene
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050a0e, 0.035);
+
+// Camera
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 0, 30);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0x1a3a30, 0.6);
+scene.add(ambientLight);
+const pointLight1 = new THREE.PointLight(0x00ffc8, 60, 80);
+pointLight1.position.set(10, 8, 12);
+scene.add(pointLight1);
+const pointLight2 = new THREE.PointLight(0xff6b35, 40, 60);
+pointLight2.position.set(-12, -6, 10);
+scene.add(pointLight2);
+const pointLight3 = new THREE.PointLight(0xffd700, 20, 50);
+pointLight3.position.set(0, 10, -10);
+scene.add(pointLight3);
+
+// Environment map for glass reflections
+const envScene = new THREE.Scene();
+const envSphereGeo = new THREE.SphereGeometry(Math.max(0.01, 25), 32, 32);
+const envSphereMat = new THREE.MeshBasicMaterial({ color: 0x0a1a15, side: THREE.BackSide });
+envScene.add(new THREE.Mesh(envSphereGeo, envSphereMat));
+const el1 = new THREE.PointLight(0x00ffc8, 80); el1.position.set(8, 5, 8); envScene.add(el1);
+const el2 = new THREE.PointLight(0xff6b35, 60); el2.position.set(-8, -5, 8); envScene.add(el2);
+const el3 = new THREE.PointLight(0xffd700, 40); el3.position.set(0, 8, -5); envScene.add(el3);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+pmrem.dispose();
+
+// === STAR PARTICLES ===
+const starCount = isMobile ? 800 : 2500;
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(starCount * 3);
+const starSizes = new Float32Array(starCount);
+const starColors = new Float32Array(starCount * 3);
+const starVelocities = new Float32Array(starCount * 3);
+
+const accentCol = new THREE.Color(0x00ffc8);
+const warmCol = new THREE.Color(0xff6b35);
+const goldCol = new THREE.Color(0xffd700);
+const whiteCol = new THREE.Color(0xccddee);
+
+for (let i = 0; i < starCount; i++) {
+  const i3 = i * 3;
+  const r = 20 + Math.random() * 60;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  starPos[i3] = r * Math.sin(phi) * Math.cos(theta);
+  starPos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+  starPos[i3 + 2] = r * Math.cos(phi);
+  starSizes[i] = Math.random() * 3 + 0.5;
+  starVelocities[i3] = (Math.random() - 0.5) * 0.005;
+  starVelocities[i3 + 1] = (Math.random() - 0.5) * 0.005;
+  starVelocities[i3 + 2] = (Math.random() - 0.5) * 0.005;
+  const colorChoice = Math.random();
+  let c;
+  if (colorChoice < 0.3) c = accentCol;
+  else if (colorChoice < 0.5) c = warmCol;
+  else if (colorChoice < 0.65) c = goldCol;
+  else c = whiteCol;
+  starColors[i3] = c.r;
+  starColors[i3 + 1] = c.g;
+  starColors[i3 + 2] = c.b;
+}
+
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+starGeo.setAttribute('aSize', new THREE.BufferAttribute(starSizes, 1));
+starGeo.setAttribute('aColor', new THREE.BufferAttribute(starColors, 3));
+
+const starMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uPixelRatio: { value: renderer.getPixelRatio() }
+  },
+  vertexShader: `
+    attribute float aSize;
+    attribute vec3 aColor;
+    varying vec3 vColor;
+    varying float vAlpha;
+    uniform float uTime;
+    uniform float uPixelRatio;
+    void main() {
+      vColor = aColor;
+      vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+      float dist = length(mvPos.xyz);
+      vAlpha = smoothstep(80.0, 10.0, dist);
+      float twinkle = sin(uTime * 2.0 + position.x * 10.0) * 0.3 + 0.7;
+      gl_PointSize = aSize * uPixelRatio * twinkle * (30.0 / -mvPos.z);
+      gl_PointSize = max(gl_PointSize, 1.0);
+      gl_Position = projectionMatrix * mvPos;
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      if (d > 0.5) discard;
+      float glow = exp(-d * 6.0);
+      float core = smoothstep(0.5, 0.0, d);
+      vec3 col = vColor * (core + glow * 0.5);
+      float alpha = (core * 0.9 + glow * 0.4) * vAlpha;
+      gl_FragColor = vec4(col, alpha);
+    }
+  `,
+  transparent: true,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending
+});
+
+const stars = new THREE.Points(starGeo, starMat);
+scene.add(stars);
+
+// === NEURAL CONNECTIONS ===
+const neuralCount = isMobile ? 40 : 120;
+const neuralPositions = new Float32Array(neuralCount * 3);
+const neuralVel = new Float32Array(neuralCount * 3);
+for (let i = 0; i < neuralCount; i++) {
+  const i3 = i * 3;
+  neuralPositions[i3] = (Math.random() - 0.5) * 40;
+  neuralPositions[i3 + 1] = (Math.random() - 0.5) * 30;
+  neuralPositions[i3 + 2] = (Math.random() - 0.5) * 20;
+  neuralVel[i3] = (Math.random() - 0.5) * 0.02;
+  neuralVel[i3 + 1] = (Math.random() - 0.5) * 0.02;
+  neuralVel[i3 + 2] = (Math.random() - 0.5) * 0.01;
+}
+
+const neuralGeo = new THREE.BufferGeometry();
+neuralGeo.setAttribute('position', new THREE.BufferAttribute(neuralPositions, 3));
+const neuralMat = new THREE.PointsMaterial({
+  color: 0x00ffc8, size: 0.3, transparent: true, opacity: 0.8,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+const neuralPoints = new THREE.Points(neuralGeo, neuralMat);
+scene.add(neuralPoints);
+
+// Connection lines
+const maxLines = neuralCount * 10;
+const linePositions = new Float32Array(maxLines * 6);
+const lineColors = new Float32Array(maxLines * 6);
+const lineGeo = new THREE.BufferGeometry();
+lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+lineGeo.setAttribute('aColor', new THREE.BufferAttribute(lineColors, 3));
+const lineMat = new THREE.LineBasicMaterial({
+  vertexColors: true, transparent: true, opacity: 0.35,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+const lines = new THREE.LineSegments(lineGeo, lineMat);
+scene.add(lines);
+
+function updateNeuralConnections() {
+  let idx = 0;
+  const threshold = isMobile ? 8 : 10;
+  const pos = neuralGeo.attributes.position.array;
+  for (let i = 0; i < neuralCount; i++) {
+    for (let j = i + 1; j < neuralCount; j++) {
+      if (idx >= maxLines) break;
+      const dx = pos[i*3] - pos[j*3];
+      const dy = pos[i*3+1] - pos[j*3+1];
+      const dz = pos[i*3+2] - pos[j*3+2];
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < threshold) {
+        const alpha = 1 - dist / threshold;
+        const li = idx * 6;
+        linePositions[li] = pos[i*3]; linePositions[li+1] = pos[i*3+1]; linePositions[li+2] = pos[i*3+2];
+        linePositions[li+3] = pos[j*3]; linePositions[li+4] = pos[j*3+1]; linePositions[li+5] = pos[j*3+2];
+        lineColors[li] = 0; lineColors[li+1] = alpha; lineColors[li+2] = alpha * 0.78;
+        lineColors[li+3] = 0; lineColors[li+4] = alpha; lineColors[li+5] = alpha * 0.78;
+        idx++;
+      }
+    }
+  }
+  // Clear remaining
+  for (let i = idx * 6; i < maxLines * 6; i++) { linePositions[i] = 0; lineColors[i] = 0; }
+  lineGeo.attributes.position.needsUpdate = true;
+  lineGeo.attributes.aColor.needsUpdate = true;
+  lineGeo.setDrawRange(0, idx * 2);
+}
+
+// === CENTRAL MORPHING GLASS GEOMETRY ===
+const glassGeo = new THREE.IcosahedronGeometry(Math.max(0.01, 3.5), 6);
+const origPositions = glassGeo.attributes.position.array.slice();
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0x88ffdd,
+  metalness: 0.05,
+  roughness: 0.05,
+  transmission: 0.92,
+  thickness: 1.5,
+  ior: 1.45,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  envMapIntensity: 1.5,
+  transparent: true,
+  opacity: 0.9,
+  side: THREE.DoubleSide
+});
+const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+glassMesh.position.set(0, 0, 0);
+scene.add(glassMesh);
+
+// Wireframe overlay for extra detail
+const wireGeo = new THREE.IcosahedronGeometry(Math.max(0.01, 3.55), 3);
+const wireMat = new THREE.MeshBasicMaterial({
+  color: 0x00ffc8, wireframe: true, transparent: true, opacity: 0.08,
+  blending: THREE.AdditiveBlending
+});
+const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+glassMesh.add(wireMesh);
+
+// === ORBITING PARTICLES ===
+const orbitCount = isMobile ? 30 : 80;
+const orbitGeo = new THREE.BufferGeometry();
+const orbitPos = new Float32Array(orbitCount * 3);
+const orbitData = [];
+for (let i = 0; i < orbitCount; i++) {
+  const radius = 5 + Math.random() * 4;
+  const speed = 0.2 + Math.random() * 0.5;
+  const offset = Math.random() * Math.PI * 2;
+  const tilt = (Math.random() - 0.5) * 1.5;
+  orbitData.push({ radius, speed, offset, tilt });
+}
+orbitGeo.setAttribute('position', new THREE.BufferAttribute(orbitPos, 3));
+const orbitMat = new THREE.PointsMaterial({
+  color: 0x00ffc8, size: 0.15, transparent: true, opacity: 0.7,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+const orbitPoints = new THREE.Points(orbitGeo, orbitMat);
+scene.add(orbitPoints);
+
+// === POST-PROCESSING ===
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.7, 0.4, 0.65
+);
+composer.addPass(bloomPass);
+
+// Liquid distortion pass
+const LiquidShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+    uIntensity: { value: isMobile ? 0.008 : 0.015 },
+    uScrollProgress: { value: 0 }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uTime;
+    uniform vec2 uMouse;
+    uniform float uIntensity;
+    uniform float uScrollProgress;
+    varying vec2 vUv;
+
+    float hash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), f.x),
+                 mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), f.x), f.y);
+    }
+    float fbm(vec2 p) {
+      float v = 0.0; float a = 0.5;
+      for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+      return v;
+    }
+    void main() {
+      vec2 uv = vUv;
+      float dist = distance(uv, uMouse);
+      float ripple = sin(dist * 40.0 - uTime * 4.0) * 0.008 * exp(-dist * 6.0);
+      vec2 distort = vec2(
+        fbm(uv * 3.0 + uTime * 0.08 + vec2(0.0, 0.3)),
+        fbm(uv * 3.0 + uTime * 0.08 + vec2(0.3, 0.0))
+      ) * uIntensity;
+      uv += distort + ripple;
+      uv = clamp(uv, 0.0, 1.0);
+      gl_FragColor = texture2D(tDiffuse, uv);
+    }
+  `
+};
+
+const liquidPass = new ShaderPass(LiquidShader);
+if (!prefersReduced && !isMobile) {
+  composer.addPass(liquidPass);
+}
+
+// === MOUSE & SCROLL STATE ===
+const mouse = { x: 0, y: 0, nx: 0.5, ny: 0.5 };
+let scrollProgress = 0;
+let targetCamX = 0, targetCamY = 0;
+
+window.addEventListener('mousemove', (e) => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  mouse.nx = e.clientX / window.innerWidth;
+  mouse.ny = 1 - e.clientY / window.innerHeight;
+});
+
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+  scrollProgress = scrollH > 0 ? scrollTop / scrollH : 0;
+});
+
+// === ANIMATION LOOP ===
+const clock = new THREE.Clock();
+let frameCount = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const elapsed = clock.getElapsedTime();
+  const delta = clock.getDelta();
+  frameCount++;
+
+  if (prefersReduced && frameCount > 1) {
+    // Static render for reduced motion
+    return;
+  }
+
+  // Update star uniforms
+  starMat.uniforms.uTime.value = elapsed;
+
+  // Subtle star rotation
+  stars.rotation.y = elapsed * 0.01 + scrollProgress * 0.5;
+  stars.rotation.x = elapsed * 0.005;
+
+  // Animate star positions slightly
+  const sPos = starGeo.attributes.position.array;
+  for (let i = 0; i < starCount; i++) {
+    const i3 = i * 3;
+    sPos[i3] += starVelocities[i3];
+    sPos[i3 + 1] += starVelocities[i3 + 1];
+    sPos[i3 + 2] += starVelocities[i3 + 2];
+  }
+  if (frameCount % 3 === 0) starGeo.attributes.position.needsUpdate = true;
+
+  // Update neural particles
+  const nPos = neuralGeo.attributes.position.array;
+  for (let i = 0; i < neuralCount; i++) {
+    const i3 = i * 3;
+    nPos[i3] += neuralVel[i3];
+    nPos[i3 + 1] += neuralVel[i3 + 1];
+    nPos[i3 + 2] += neuralVel[i3 + 2];
+    // Boundary wrap
+    if (Math.abs(nPos[i3]) > 20) neuralVel[i3] *= -1;
+    if (Math.abs(nPos[i3+1]) > 15) neuralVel[i3+1] *= -1;
+    if (Math.abs(nPos[i3+2]) > 10) neuralVel[i3+2] *= -1;
+    // Mouse attraction
+    nPos[i3] += mouse.x * 0.02;
+    nPos[i3 + 1] += mouse.y * 0.02;
+  }
+  neuralGeo.attributes.position.needsUpdate = true;
+
+  // Update connections every 4 frames for performance
+  if (frameCount % 4 === 0) updateNeuralConnections();
+
+  // Morph glass geometry
+  const positions = glassGeo.attributes.position.array;
+  const morphFactor = 0.15 + scrollProgress * 0.2;
+  for (let i = 0; i < positions.length; i += 3) {
+    const ox = origPositions[i], oy = origPositions[i+1], oz = origPositions[i+2];
+    const len = Math.max(0.001, Math.sqrt(ox*ox + oy*oy + oz*oz));
+    const nx = ox/len, ny = oy/len, nz = oz/len;
+    const disp = Math.sin(ox * 1.5 + elapsed * 0.8) *
+                 Math.sin(oy * 1.5 + elapsed * 0.6) *
+                 Math.sin(oz * 1.5 + elapsed * 1.0) * morphFactor;
+    positions[i] = ox + nx * disp;
+    positions[i+1] = oy + ny * disp;
+    positions[i+2] = oz + nz * disp;
+  }
+  glassGeo.attributes.position.needsUpdate = true;
+  glassGeo.computeVertexNormals();
+
+  // Rotate glass mesh
+  glassMesh.rotation.y = elapsed * 0.15 + mouse.x * 0.3;
+  glassMesh.rotation.x = elapsed * 0.1 + mouse.y * 0.2;
+
+  // Orbiting particles
+  const oPos = orbitGeo.attributes.position.array;
+  for (let i = 0; i < orbitCount; i++) {
+    const d = orbitData[i];
+    const angle = elapsed * d.speed + d.offset;
+    oPos[i*3] = Math.cos(angle) * d.radius;
+    oPos[i*3+1] = d.tilt + Math.sin(angle * 0.7) * 1.5;
+    oPos[i*3+2] = Math.sin(angle) * d.radius;
+  }
+  orbitGeo.attributes.position.needsUpdate = true;
+
+  // Camera parallax
+  targetCamX = mouse.x * 3;
+  targetCamY = mouse.y * 2;
+  camera.position.x += (targetCamX - camera.position.x) * 0.02;
+  camera.position.y += (targetCamY - camera.position.y) * 0.02;
+  // Scroll zoom
+  const targetZ = 30 - scrollProgress * 8;
+  camera.position.z += (targetZ - camera.position.z) * 0.03;
+  camera.lookAt(0, 0, 0);
+
+  // Light follows cursor
+  pointLight1.position.x = 10 + mouse.x * 5;
+  pointLight1.position.y = 8 + mouse.y * 5;
+
+  // Update liquid pass
+  if (liquidPass.uniforms) {
+    liquidPass.uniforms.uTime.value = elapsed;
+    liquidPass.uniforms.uMouse.value.set(mouse.nx, mouse.ny);
+    liquidPass.uniforms.uScrollProgress.value = scrollProgress;
+  }
+
+  // Theme-based adjustments
+  const isDark = document.documentElement.classList.contains('dark');
+  scene.fog.color.set(isDark ? 0x050a0e : 0xdde8e2);
+  renderer.setClearColor(isDark ? 0x050a0e : 0xdde8e2, 0);
+  ambientLight.intensity = isDark ? 0.6 : 1.2;
+
+  composer.render();
+}
+
+// Resize handler
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  bloomPass.resolution.set(window.innerWidth, window.innerHeight);
+});
+
+// Start
+animate();
+
+// Hide loader
+setTimeout(() => {
+  document.getElementById('loader').classList.add('hidden');
+  setTimeout(() => document.getElementById('loader').remove(), 800);
+}, 1200);
+</script>
+
+<!-- UI INTERACTIONS -->
+<script>
+// Theme toggle
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+let isDark = true;
+
+themeToggle.addEventListener('click', () => {
+  isDark = !isDark;
+  document.documentElement.classList.toggle('dark', isDark);
+  document.documentElement.classList.toggle('light', !isDark);
+  themeIcon.className = isDark ? 'fa-solid fa-moon text-sm' : 'fa-solid fa-sun text-sm';
+});
+
+// Cursor glow
+const cursorGlow = document.getElementById('cursorGlow');
+document.addEventListener('mousemove', (e) => {
+  cursorGlow.style.left = e.clientX + 'px';
+  cursorGlow.style.top = e.clientY + 'px';
+  cursorGlow.style.opacity = '1';
+});
+document.addEventListener('mouseleave', () => { cursorGlow.style.opacity = '0'; });
+
+// Typing animation
+const roles = ['Full-Stack Developer', 'AI Enthusiast', 'Creative Coder', 'Open Source Contributor', 'Shader Artist'];
+let roleIdx = 0, charIdx = 0, isDeleting = false;
+const typedEl = document.getElementById('typed-text');
+
+function typeEffect() {
+  const current = roles[roleIdx];
+  if (isDeleting) { charIdx--; } else { charIdx++; }
+  typedEl.textContent = current.substring(0, charIdx);
+  let speed = isDeleting ? 40 : 80;
+  if (!isDeleting && charIdx === current.length) { speed = 2200; isDeleting = true; }
+  else if (isDeleting && charIdx === 0) { isDeleting = false; roleIdx = (roleIdx + 1) % roles.length; speed = 400; }
+  setTimeout(typeEffect, speed);
+}
+typeEffect();
+
+// Scroll reveal with IntersectionObserver
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// Skill bar animation
+const skillObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const bars = entry.target.querySelectorAll('.skill-fill');
+      bars.forEach((bar, i) => {
+        setTimeout(() => { bar.style.width = bar.dataset.width; }, i * 120);
+      });
+      skillObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('#skills .glass').forEach(el => skillObserver.observe(el));
+
+// Scroll progress ring
+const progressRing = document.getElementById('progressRing');
+const circumference = 2 * Math.PI * 11;
+progressRing.style.strokeDasharray = circumference;
+progressRing.style.strokeDashoffset = circumference;
+
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollH > 0 ? scrollTop / scrollH : 0;
+  progressRing.style.strokeDashoffset = circumference - (progress * circumference);
+});
+
+// Magnetic card effect
+document.querySelectorAll('.magnetic-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotateX = -(y / rect.height) * 12;
+    const rotateY = (x / rect.width) * 12;
+    card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
+  });
+});
+
+// Mobile menu
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+let menuOpen = false;
+mobileMenuBtn.addEventListener('click', () => {
+  menuOpen = !menuOpen;
+  mobileMenu.classList.toggle('hidden', !menuOpen);
+  mobileMenuBtn.querySelector('i').className = menuOpen ? 'fa-solid fa-xmark text-sm' : 'fa-solid fa-bars text-sm';
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    menuOpen = false;
+    mobileMenu.classList.add('hidden');
+    mobileMenuBtn.querySelector('i').className = 'fa-solid fa-bars text-sm';
+  });
+});
+
+// Contact form
+const contactForm = document.getElementById('contactForm');
+const formSuccess = document.getElementById('formSuccess');
+contactForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  contactForm.classList.add('hidden');
+  formSuccess.classList.remove('hidden');
+  showToast('Message sent successfully');
+});
+
+// Toast
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
